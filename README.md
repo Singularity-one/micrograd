@@ -221,3 +221,137 @@ dL/da = dL/dc × dc/da
 - [micrograd](https://github.com/karpathy/micrograd) - Andrej Karpathy 的原始 Python 實現
 - [nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) - Karpathy 的神經網路教學
 - [The spelled-out intro to neural networks and backpropagation](https://www.youtube.com/watch?v=VMj-3S1tku0) - YouTube 影片講解
+
+# Java Makemore
+
+A character-level language model in Java.  
+Inspired by [Andrej Karpathy's makemore](https://github.com/karpathy/makemore).
+
+## 簡介
+
+這是 Karpathy 的 [makemore](https://github.com/karpathy/makemore) 第一部分（Bigram）的 Java 實現，用於學習：
+
+- 字元級語言建模（Character-level Language Modeling）
+- Bigram 統計模型
+- 神經網路語言模型
+- Softmax 與負對數似然損失
+
+## 專案結構
+```
+java-micrograd/
+├── pom.xml
+├── README.md
+├── data/
+│   └── names.txt                    # 訓練資料
+└── src/
+    ├── main/java/com/micrograd/
+    │   ├── Main.java                # 主程式
+    │   ├── data/
+    │   │   ├── Vocabulary.java      # 字元詞彙表
+    │   │   └── DataLoader.java      # 資料載入
+    │   ├── model/
+    │   │   ├── LanguageModel.java   # 模型介面
+    │   │   ├── BigramCounter.java   # 計數方法
+    │   │   └── BigramNeuralNet.java # 神經網路方法
+    │   ├── tensor/
+    │   │   ├── Tensor.java          # 2D 張量
+    │   │   └── TensorOps.java       # 張量運算
+    │   └── util/
+    │       └── RandomUtils.java     # 隨機採樣
+    └── test/java/com/micrograd/
+        ├── data/
+        │   └── VocabularyTest.java
+        ├── model/
+        │   ├── BigramCounterTest.java
+        │   └── BigramNeuralNetTest.java
+        └── tensor/
+            └── TensorTest.java
+```
+
+## 環境需求
+
+- **Java 17** 或以上
+- **Maven 3.6** 或以上
+
+## 資料集
+
+下載 `names.txt` 放到 `data/` 目錄：
+```bash
+mkdir -p data
+curl -o data/names.txt https://raw.githubusercontent.com/karpathy/makemore/master/names.txt
+```
+
+## 快速開始
+
+### 編譯
+```bash
+mvn compile
+```
+
+### 執行
+```bash
+mvn exec:java -Dexec.mainClass="com.micrograd.Main"
+```
+
+### 測試
+```bash
+mvn test
+```
+
+## 兩種方法比較
+
+### 方法一：計數統計（BigramCounter）
+
+- 統計所有 bigram 出現次數
+- 正規化為機率分佈
+- 支援 Laplace smoothing
+
+### 方法二：神經網路（BigramNeuralNet）
+
+- 使用 one-hot 編碼輸入
+- 單層線性網路 + Softmax
+- 梯度下降優化
+
+### 結果
+
+兩種方法會學到幾乎相同的機率分佈！
+
+| 方法 | 訓練損失 |
+|------|----------|
+| 計數統計 | ~2.45 |
+| 神經網路 | ~2.45 |
+
+## 核心概念
+
+### 1. Bigram 語言模型
+
+給定前一個字元，預測下一個字元的機率分佈。
+```
+P(next_char | prev_char)
+```
+
+### 2. 負對數似然損失
+```
+loss = -log(P(correct_char))
+```
+
+損失越低，模型預測越準確。
+
+### 3. Softmax
+
+將 logits 轉換為機率分佈：
+```
+P(i) = exp(logit_i) / Σ exp(logit_j)
+```
+
+## 生成範例
+
+訓練後，模型可以生成看起來像名字的字串：
+```
+junide
+janasah
+p
+cede
+ede
+...
+```
